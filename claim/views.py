@@ -70,8 +70,8 @@ def stat(request):
 def write_error(request):
     data = request.POST
     if data.get('kv_id') and data.get('q_id'):
-        if data.get('kv_id') != 'Не выбрано':
-            if data.get('q_id') != 'Не выбрано':
+        if data.get('kv_id') != 'None':
+            if data.get('q_id') != 'None':
                 c = Claim(
                     KV_name=KV.objects.get(id=data.get('kv_id')),
                     question_number=Question.objects.get(id=data.get('q_id'))

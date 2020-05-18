@@ -25,7 +25,10 @@ SECRET_KEY = '*kun79(434%vqkcg+7=xa#u%j$5d4bfo8r4yjnl@z*_*%myvo3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'alialove93.pythonanywhere.com'
+]
 
 
 # Application definition
@@ -81,7 +84,7 @@ DATABASES = {
         'USER': 'claim',
         'PASSWORD': 'qwerty',
         'OPTIONS': {
-            'read_default_file': '../my.cnf',
+            'read_default_file': '../../my.cnf',
         },
     }
 }
@@ -109,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 

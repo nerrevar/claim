@@ -1,32 +1,42 @@
 {% extends "claim/index.html" %}
-{% block main %}
-  <script>
-    function add_error(){
-      $.post(
-        "/write_error",
-        {
-          kv_id: $("#kv_select option:checked").attr("kv_id"),
-          q_id: $("#q_select option:checked").attr("q_id")
-        }
-      )
-      .done(function(message){
-        console.log('success: ' + message);
+{% block scripts %}
+<script>
+  function add_error(){
+    $.post(
+      "/write_error",
+      {
+        kv_id: $("#kv_select option:checked").attr("kv_id"),
+        q_id: $("#q_select option:checked").attr("q_id")
+      }
+    )
+    .done(function(message){
+      if (message != 'false'){
         $("#add_result_positive").show();
         setTimeout(() => { $("#add_result_positive").hide()}, 5000);
-      })
-      .fail(function(message){
+      }
+      else{
         console.log(message);
         $("#add_result_negative").show();
         setTimeout(() => { $("#add_result_negative").hide()}, 5000);
-      });
-    }
-  </script>
+      };
+    })
+    .fail(function(message){
+      console.log(message);
+      $("#add_result_negative").show();
+      setTimeout(() => { $("#add_result_negative").hide()}, 5000);
+    });
+  }
+</script>
+{% endblock %}
+{% block main %}
   <select id="kv_select">
+    <option kv_id="None">Не выбрано</option>
     {% for k in kv %}
       <option kv_id="{{ k.id }}" >{{ k.KV_login }}</option>
     {% endfor %}
   </select>
   <select id="q_select">
+    <option kv_id="None">Не выбрано</option>
     {% for q in question %}
       <option q_id="{{ q.id }}" >{{ q.question_number }} {{ q.question_text }}</option>
     {% endfor %}
