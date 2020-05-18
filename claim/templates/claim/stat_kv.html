@@ -1,0 +1,20 @@
+{% extends 'claim/index.html' %}
+{% block main %}
+<table>
+  <thead>
+    <tr>
+      <th>ФИО</th>
+      <th>Логин</th>
+      <th>Итого</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for k,v in count_arr %}
+      <tr>
+        <td>{{ k }}</td>
+        <td>{{ v }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

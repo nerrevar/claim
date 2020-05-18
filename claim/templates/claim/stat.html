@@ -1,0 +1,25 @@
+{% extends 'claim/index.html' %}
+{{ count_arr }}
+{% block main %}
+<table>
+  <thead>
+    <tr>
+      <th>ФИО</th>
+      <th>Логин</th>
+      {% for q in question %}
+        <th>{{ q.question_number }}. {{ q.question_text }}</th>
+      {% endfor %}
+      <th>Итого</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for kv_line in count_arr.values %}
+      <tr>
+        {% for val in kv_line %}
+          <td>{{ val }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
