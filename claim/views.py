@@ -36,13 +36,13 @@ def stat(request):
         count_arr.append(list())
         index += 1
         count_arr[index].append(group.group_name)
+        kv_err_count = 0
         for kv in KV.objects.filter(group_name=group.group_name):
             kv_err_count += len(Claim.objects.filter(KV_name=kv.KV_name))
         count_arr[index].append(kv_err_count)
         for q in question:
             count_arr[index].append('---')
         count_arr[index].append('---') # Sum column
-        kv_err_count = 0
         kv = KV.objects.filter(group_name = group.group_name)
         for k in kv:
             count_arr.append(list())
