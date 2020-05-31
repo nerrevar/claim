@@ -32,13 +32,13 @@
   <select id="kv_select">
     <option kv_id="None">Не выбрано</option>
     {% for k in kv %}
-      <option kv_id="{{ k.id }}" >{{ k.KV_login }}</option>
+      <option kv_id="{{ k.KV_name }}" >{{ k.KV_login }}</option>
     {% endfor %}
   </select>
   <select id="q_select">
     <option kv_id="None">Не выбрано</option>
     {% for q in question %}
-      <option q_id="{{ q.id }}" >{{ q.question_number }} {{ q.question_text }}</option>
+      <option q_id="{{ q.question_number }}" >{{ q.question_number }} {{ q.question_text }}</option>
     {% endfor %}
   </select>
   <div>

@@ -33,14 +33,14 @@ def stat(request):
         count_arr[k.KV_name].append(k.KV_name)
         count_arr[k.KV_name].append(k.KV_login)
         for q in question:
-            error_count = len(claim_arr.filter(question_number=q.id, KV_name=k.id))
+            error_count = len(claim_arr.filter(question_number=q.question_number, KV_name=k.KV_name))
             count_arr[k.KV_name].append(error_count)
-        count_arr[k.KV_name].append(len(claim_arr.filter(KV_name=k.id)))
+        count_arr[k.KV_name].append(len(claim_arr.filter(KV_name=k.KV_name)))
     count_arr['sum'] = list()
     count_arr['sum'].append('')
     count_arr['sum'].append('Итого')
     for q in question:
-        count_arr['sum'].append(len(claim_arr.filter(question_number=q.id)))
+        count_arr['sum'].append(len(claim_arr.filter(question_number=q.question_number)))
     context = {
         'title': 'Статистика',
         'kv': kv,
@@ -73,8 +73,8 @@ def write_error(request):
         if data.get('kv_id') != 'None':
             if data.get('q_id') != 'None':
                 c = Claim(
-                    KV_name=KV.objects.get(id=data.get('kv_id')),
-                    question_number=Question.objects.get(id=data.get('q_id'))
+                    KV_name=KV.objects.get(KV_name=data.get('kv_id')),
+                    question_number=Question.objects.get(question_number=data.get('q_id'))
                 )
                 result = c.save()
                 return HttpResponse(result)
