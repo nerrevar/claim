@@ -23,51 +23,37 @@ def stat(request):
     template = loader.get_template('claim/stat.html')
     question = Question.objects.order_by('question_number')
     claim_arr = Claim.objects.all()
-    keys = list()
-    # for group in Group.objects.all():
-    #     keys.append(group.group_name)
-    #     keys.extend([kv.KV_name for kv in KV.objects.all().filter(group_name=group.group_name)])
-    count_arr = list()
-    # dict.fromkeys(keys)
-    index = 0
-    count_arr.append(list())
+    count_arr = dict.fromkeys([group.group_name for group in Group.objects.all()])
     for group in Group.objects.all():
-        # count_arr[group] = list();
-        count_arr.append(list())
-        index += 1
-        count_arr[index].append(group.group_name)
+        count_arr[group.group_name] = dict.fromkeys([kv.KV_name for kv in KV.objects.all().filter(group_name=group.group_name)])
         kv_err_count = 0
         for kv in KV.objects.filter(group_name=group.group_name):
             kv_err_count += len(Claim.objects.filter(KV_name=kv.KV_name))
-        count_arr[index].append(kv_err_count)
-        for q in question:
-            count_arr[index].append('---')
-        count_arr[index].append('---') # Sum column
-        kv = KV.objects.filter(group_name = group.group_name)
+        count_arr[group.group_name]['error_count'] = kv_err_count # Group error count
+
+        kv = KV.objects.filter(group_name = group.group_name) # KV from current group
         for k in kv:
-            count_arr.append(list())
-            index += 1
-            # count_arr[k.KV_name] = list()
-            count_arr[index].append(k.KV_name)
-            count_arr[index].append(k.KV_login)
+            count_arr[group.group_name][k.KV_name] = list()
+            count_arr[group.group_name][k.KV_name].append(k.KV_name)
+            count_arr[group.group_name][k.KV_name].append(k.KV_login)
             for q in question:
                 error_count = len(claim_arr.filter(question_number=q.question_number, KV_name=k.KV_name))
-                count_arr[index].append(error_count)
-            count_arr[index].append(len(claim_arr.filter(KV_name=k.KV_name)))
-    # count_arr['sum'] = list()
-    count_arr.append(list())
-    index += 1
-    count_arr[index].append('')
-    count_arr[index].append('Итого')
+                count_arr[group.group_name][k.KV_name].append(error_count) # Add error count for each question to KV's list
+            count_arr[group.group_name][k.KV_name].append(len(claim_arr.filter(KV_name=k.KV_name))) # Add summary error count
+
+    summary_arr = list()
+    summary_arr.append('')
+    summary_arr.append('Итого')
     for q in question:
-        count_arr[index].append(len(claim_arr.filter(question_number=q.question_number)))
+        summary_arr.append(len(claim_arr.filter(question_number=q.question_number)))
     context = {
         'title': 'Статистика',
-        'kv': kv,
-        'question': question,
-        'count_arr': count_arr,
-        'str_len': len(question) + 3
+        'claim_len': len(Claim.objects.all()),
+        'Group': Group.objects.all(),
+        'KV': KV.objects.all(),
+        'Question': Question.objects.order_by('question_number')
     }
+    print(count_arr)
     return HttpResponse(template.render(context, request))
 
 # def stat_kv(request):
