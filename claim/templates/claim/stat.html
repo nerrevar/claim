@@ -4,6 +4,16 @@
   .group_name, .group_err_count, .error_summary {
     font-weight: 700;
   }
+  thead {
+    position: sticky;
+    top: 0;
+    background: white;
+  }
+  .left {
+    position: sticky;
+    left: 0;
+    background: white;
+  }
 </style>
 {% endblock %}
 {% block main %}
@@ -28,8 +38,8 @@
       {% for kv in KV %}
         {% if kv.group_name == group %}
           <tr>
-            <td>{{ kv.KV_name }}</td>
-            <td>{{ kv.KV_login }}</td>
+            <td class="left">{{ kv.KV_name }}</td>
+            <td class="left">{{ kv.KV_login }}</td>
             {% for val in kv.Error_count_list %}
               <td>{{ val }}</td>
             {% endfor %}
