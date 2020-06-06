@@ -3,17 +3,15 @@
 <table>
   <thead>
     <tr>
-      <th>ФИО</th>
-      <th>Логин</th>
+      <th>Вопрос</th>
       <th>Всего ошибок</th>
     </tr>
   </thead>
   <tbody>
-    {% for line in count_arr %}
+    {% for k,v in count_arr.items %}
       <tr>
-        {% for item in line %}
-          <td>{{ item }}</td>
-        {% endfor %}
+        <td>{{ k }}</td>
+        <td>{{ v }}</td>
       </tr>
     {% endfor %}
   </tbody>

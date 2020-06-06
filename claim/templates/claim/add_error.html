@@ -5,12 +5,12 @@
     $.post(
       "/write_error",
       {
-        kv_id: $("#kv_select option:checked").attr("kv_id"),
-        q_id: $("#q_select option:checked").attr("q_id")
+        kv_name: $("#kv_select").val(),
+        question: $("#q_select").val()
       }
     )
     .done(function(message){
-      if (message != 'false'){
+      if (message == 'None'){
         $("#add_result_positive").show();
         setTimeout(() => { $("#add_result_positive").hide()}, 5000);
       }
@@ -29,18 +29,18 @@
 </script>
 {% endblock %}
 {% block main %}
-  <select id="kv_select">
-    <option kv_id="None">Не выбрано</option>
+  <input type="text" id="kv_select" list="kv" />
+  <datalist id="kv">
     {% for k in kv %}
-      <option kv_id="{{ k.KV_name }}" >{{ k.KV_name }}</option>
+      <option value="{{ k.KV_name }}" />
     {% endfor %}
-  </select>
-  <select id="q_select">
-    <option kv_id="None">Не выбрано</option>
+  </datalist>
+  <input type="text" id="q_select" list="q" />
+  <datalist id="q">
     {% for q in question %}
-      <option q_id="{{ q.question_number }}" >{{ q.question_number }} {{ q.question_text }}</option>
+      <option value="{{ q.question_number }}. {{ q.question_text }}" />
     {% endfor %}
-  </select>
+  </datalist>
   <div>
     <button onclick="add_error()">Добавить</button>
     <span id="add_result_positive" style="color: green;" hidden >Ошибка успешно добавлена</span>
