@@ -16,8 +16,10 @@
   }
 </style>
 {% endblock %}
+{% block scripts %}
+{% endblock %}
 {% block main %}
-<p>Всего ошибок: <b>{{ claim_len }}</b></p>
+<p>Всего ошибок: <b>{{ claim.Count }}</b></p>
 <table>
   <thead>
     <tr>
@@ -38,6 +40,7 @@
       {% for kv in KV %}
         {% if kv.group_name == group %}
           <tr>
+            <!-- TODO bring this to work with date -->
             <td class="left">{{ kv.KV_name }}</td>
             <td class="left">{{ kv.KV_login }}</td>
             {% for val in kv.Error_count_list %}

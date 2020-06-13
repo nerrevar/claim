@@ -15,7 +15,8 @@ def add_error(request):
     context = {
         'title': 'Добавить ошибку',
         'kv': KV.objects.order_by('KV_name'),
-        'question': Question.objects.order_by('id')
+        'question': Question.objects.order_by('id'),
+        'not_show': True
     }
     return HttpResponse(template.render(context, request))
 
@@ -23,10 +24,7 @@ def stat(request):
     template = loader.get_template('claim/stat.html')
     context = {
         'title': 'Статистика',
-        'claim_len': len(Claim.objects.all()),
-        'Group': Group.objects.order_by('group_name'),
-        'KV': KV.objects.order_by('KV_name'),
-        'Question': Question.objects.order_by('question_number')
+        'claim': Claim,
     }
     return HttpResponse(template.render(context, request))
 
