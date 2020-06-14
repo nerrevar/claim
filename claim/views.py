@@ -23,7 +23,7 @@ def get_end_month():
     return tmp_date.isoformat()
 
 
-# Create your views here.
+# Add new error page
 def add_error(request):
     template = loader.get_template('claim/add_error.html')
     context = {
@@ -34,16 +34,13 @@ def add_error(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+# Main statistics
 def stat(request):
     template = loader.get_template('claim/stat.html')
 
-    print(request.COOKIES.items())
-
     start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
     end_date = date.fromisoformat( request.COOKIES.get('end_date', get_end_month()) )
-
-    print('start_date: ', start_date)
-    print('end_date: ', end_date)
 
     count_arr = dict.fromkeys([g.group_name for g in Group.objects.order_by('group_name')])
     for group in Group.objects.order_by('group_name'):
@@ -80,9 +77,15 @@ def stat(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+# Statistics for KV
 def stat_kv(request):
     template = loader.get_template('claim/stat_kv.html')
-    error_count_arr = {kv.KV_name: kv.Error_summary for kv in KV.objects.all()}
+
+    start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
+    end_date = date.fromisoformat( request.COOKIES.get('end_date', get_end_month()) )
+
+    error_count_arr = {kv.KV_name: kv.Error_summary_filtered(start_date, end_date) for kv in KV.objects.all()}
     sorted_arr = {k: error_count_arr[k] for k in sorted(error_count_arr, key=error_count_arr.get, reverse=True)}
     count_arr = list()
     for key, value in sorted_arr.items():
@@ -94,9 +97,15 @@ def stat_kv(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+# Statistics for questions
 def stat_question(request):
     template = loader.get_template('claim/stat_question.html')
-    error_count_arr = {'{0}. {1}'.format(q.question_number, q.question_text): q.Count for q in Question.objects.all()}
+
+    start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
+    end_date = date.fromisoformat( request.COOKIES.get('end_date', get_end_month()) )
+
+    error_count_arr = {'{0}. {1}'.format(q.question_number, q.question_text): q.Count_filtered(start_date, end_date) for q in Question.objects.all()}
     sorted_arr = {k: error_count_arr[k] for k in sorted(error_count_arr, key=error_count_arr.get, reverse=True)}
     context = {
         'title': 'Статистика по вопросам',
@@ -104,6 +113,8 @@ def stat_question(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+# For xhr
 @csrf_exempt
 def write_error(request):
     data = request.POST
@@ -118,6 +129,6 @@ def write_error(request):
                 )
                 result = c.save()
                 return HttpResponse(result)
-        return HttpResponse('except kv or q')
+        return HttpResponse('except kv_name or question value')
     except:
-        return HttpResponse('false')
+        return HttpResponse('not working')
