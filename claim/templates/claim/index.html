@@ -24,8 +24,8 @@
   </script>
   <script>
     $(
-      $("#start_date").val(document.cookie['start_date']),
-      $("#end_date").val(document.cookie['end_date'])
+      if ($.cookie('start_date'))
+        $("#start_date").val($.cookie('start_date'))
     )
   </script>
   {% block scripts %}

@@ -75,6 +75,7 @@ WSGI_APPLICATION = 'alena_work.wsgi.application'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

@@ -19,7 +19,7 @@
 {% block scripts %}
 {% endblock %}
 {% block main %}
-<p>Всего ошибок: <b>{{ claim.Count }}</b></p>
+<p>Всего ошибок: <b>{{ claim_len }}</b></p>
 <table>
   <thead>
     <tr>
@@ -32,30 +32,29 @@
     </tr>
   </thead>
   <tbody>
-    {% for group in Group %}
-      <tr class="group_line">
-        <td class="group_name">{{ group.group_name }}</td>
-        <td class="group_err_count">{{ group.Error_count }}
+    {% for group_name,group_arr in count_arr.items %}
+
+      <tr>
+        <td class="group_name">{{ group_name }}</td>
+        <td class="group_summary">{{ group_arr.summary }}</td>
       </tr>
-      {% for kv in KV %}
-        {% if kv.group_name == group %}
+
+      {% for kv_name,kv_arr in group_arr.items %}
+        {% if kv_name != 'summary' %}
           <tr>
-            <!-- TODO bring this to work with date -->
-            <td class="left">{{ kv.KV_name }}</td>
-            <td class="left">{{ kv.KV_login }}</td>
-            {% for val in kv.Error_count_list %}
-              <td>{{ val }}</td>
+            {% for value in kv_arr %}
+              <td>{{ value }}</td>
             {% endfor %}
-            <td class="error_summary">{{ kv.Error_summary }}</td>
           </tr>
         {% endif %}
       {% endfor %}
+
     {% endfor %}
     <tr>
       <td></td>
-      <td class="error_summary">Итого</td>
-      {% for q in Question %}
-        <td class="error_summary">{{ q.Count }}</td>
+      <td><b>Итого</b></td>
+      {% for val in summary_arr %}
+        <td>{{ val }}</td>
       {% endfor %}
     </tr>
   </tbody>
