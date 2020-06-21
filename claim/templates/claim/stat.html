@@ -51,10 +51,12 @@
 
     {% endfor %}
     <tr>
-      <td></td>
-      <td><b>Итого</b></td>
       {% for val in summary_arr %}
-        <td>{{ val }}</td>
+        {% if val == 'Итого' %}
+          <td><b>{{ val }}</b></td>
+        {% else %}
+          <td>{{ val }}</td>
+        {% endif %}
       {% endfor %}
     </tr>
   </tbody>

@@ -1,13 +1,13 @@
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.template import loader
 
-from .models import Question, KV, Claim, Group
-
-from django.views.decorators.csrf import csrf_exempt
-
 from datetime import date, timedelta
+
+from .models import Question, KV, Claim, Group, Captain
+
 
 
 def get_start_month():
@@ -23,8 +23,37 @@ def get_end_month():
     return tmp_date.isoformat()
 
 
+# Auth
+def auth(request):
+    template = loader.get_template('claim/auth.html')
+    return HttpResponse(template.render({}, request))
+
+@csrf_exempt
+def log_in(request):
+    print(request.POST)
+    try:
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is not None:
+            login(request, user)
+            return redirect('/')
+            return HttpResponse('success')
+        return redirect('/auth?error=login')
+    except:
+        return HttpResponse('not working')
+    return redirect('/auth')
+
+def site_logout(request):
+    logout(request)
+    return redirect('/')
+
+
+
 # Add new error page
 def add_error(request):
+    if not request.user.is_authenticated:
+        template = loader.get_template('claim/not_authorized.html')
+        return HttpResponse(template.render({}, request))
+
     template = loader.get_template('claim/add_error.html')
     context = {
         'title': 'Добавить ошибку',
@@ -37,29 +66,82 @@ def add_error(request):
 
 # Main statistics
 def stat(request):
+    if not request.user.is_authenticated:
+        template = loader.get_template('claim/not_authorized.html')
+        return HttpResponse(template.render({}, request))
+
+    user_group = 'kv'
+
+    if request.user.groups.filter(name='pret_captain').exists():
+        user_group = 'captain'
+    if request.user.groups.filter(name='pret_view').exists():
+        user_group = 'view'
+    if request.user.groups.filter(name='pret_work').exists():
+        user_group = 'work'
+
+    print(user_group)
+
     template = loader.get_template('claim/stat.html')
 
     start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
     end_date = date.fromisoformat( request.COOKIES.get('end_date', get_end_month()) )
 
-    count_arr = dict.fromkeys([g.group_name for g in Group.objects.order_by('group_name')])
+    if user_group not in ('kv', 'captain'):
+        count_arr = dict.fromkeys([g.group_name for g in Group.objects.order_by('group_name')])
+    else:
+        if user_group == 'kv':
+            count_arr = dict.fromkeys([KV.Group_name(request.user)])
+        if user_group == 'captain':
+            group_arr = [KV.Group_name(str(request.user))]
+            captain_group_name = Captain.objects.filter(KV_name=str(request.user)).first().group_name.group_name
+            if captain_group_name != KV.Group_name(request.user):
+                group_arr.append(captain_group_name)
+            count_arr = dict.fromkeys(group_arr)
+
     for group in Group.objects.order_by('group_name'):
-        count_arr[group.group_name] = dict.fromkeys([group.Members])
-        count_arr[group.group_name]['summary'] = group.Error_count_filtered(start_date, end_date)
-        count_arr[group.group_name]['question'] = list()
-        count_arr[group.group_name]['question'].append('')
-        count_arr[group.group_name]['question'].append('Итого')
-        for q in Question.objects.order_by('question_number'):
-            count_arr[group.group_name]['question'].append(q.Count_by_group_filtered(group.group_name, start_date, end_date))
-        count_arr[group.group_name]['question'].append(group.Error_count_filtered(start_date, end_date))
-        for kv in group.Members:
-            count_arr[group.group_name][kv.KV_name] = list()
-            count_arr[group.group_name][kv.KV_name].append(kv.KV_name)
-            count_arr[group.group_name][kv.KV_name].append(kv.KV_login)
-            count_arr[group.group_name][kv.KV_name].extend(kv.Error_count_list_filtered(start_date, end_date))
-            count_arr[group.group_name][kv.KV_name].append(kv.Error_summary_filtered(start_date, end_date))
+        if group.group_name in count_arr.keys():
+            if user_group == 'kv':
+                count_arr[group.group_name] = dict.fromkeys([str(request.user)])
+            else:
+                count_arr[group.group_name] = dict.fromkeys([kv.KV_name for kv in group.Members])
+                if user_group == 'captain':
+                    captain_group_name = Captain.objects.filter(KV_name=str(request.user)).first().group_name.group_name
+                    if captain_group_name == group.group_name:
+                        count_arr[group.group_name]['summary'] = group.Error_count_filtered(start_date, end_date)
+                        count_arr[group.group_name]['question'] = list()
+                        count_arr[group.group_name]['question'].append('')
+                        count_arr[group.group_name]['question'].append('Итого')
+                        for q in Question.objects.order_by('question_number'):
+                            count_arr[group.group_name]['question'].append(q.Count_by_group_filtered(group.group_name, start_date, end_date))
+                        count_arr[group.group_name]['question'].append(group.Error_count_filtered(start_date, end_date))
+                else:
+                    count_arr[group.group_name]['summary'] = group.Error_count_filtered(start_date, end_date)
+                    count_arr[group.group_name]['question'] = list()
+                    count_arr[group.group_name]['question'].append('')
+                    count_arr[group.group_name]['question'].append('Итого')
+                    for q in Question.objects.order_by('question_number'):
+                        count_arr[group.group_name]['question'].append(q.Count_by_group_filtered(group.group_name, start_date, end_date))
+                    count_arr[group.group_name]['question'].append(group.Error_count_filtered(start_date, end_date))
+            for kv in group.Members:
+                if user_group in ('kv', 'captain'):
+                    if kv.KV_name == str(request.user) or Captain.objects.filter(KV_name=str(request.user), group_name=group.group_name):
+                        count_arr[group.group_name][kv.KV_name] = list()
+                        count_arr[group.group_name][kv.KV_name].append(kv.KV_name)
+                        count_arr[group.group_name][kv.KV_name].append(kv.KV_login)
+                        count_arr[group.group_name][kv.KV_name].extend(kv.Error_count_list_filtered(start_date, end_date))
+                        count_arr[group.group_name][kv.KV_name].append(kv.Error_summary_filtered(start_date, end_date))
+                else:
+                    count_arr[group.group_name][kv.KV_name] = list()
+                    count_arr[group.group_name][kv.KV_name].append(kv.KV_name)
+                    count_arr[group.group_name][kv.KV_name].append(kv.KV_login)
+                    count_arr[group.group_name][kv.KV_name].extend(kv.Error_count_list_filtered(start_date, end_date))
+                    count_arr[group.group_name][kv.KV_name].append(kv.Error_summary_filtered(start_date, end_date))
+
+    print(count_arr)
 
     summary_arr = list()
+    summary_arr.append('')
+    summary_arr.append('Итого')
     for q in Question.objects.order_by('question_number'):
         summary_arr.append(q.Count_filtered(start_date, end_date))
     summary_arr.append(Claim.Count_filtered(start_date, end_date))
@@ -73,13 +155,19 @@ def stat(request):
             ).count(),
         'Question': Question.objects.order_by('question_number'),
         'count_arr': count_arr,
-        'summary_arr': summary_arr
+        'group': user_group
     }
+    if user_group in ('pret_view', 'pret_work'):
+        context['summary_arr'] = summary_arr
     return HttpResponse(template.render(context, request))
 
 
 # Statistics for KV
 def stat_kv(request):
+    if not request.user.is_authenticated:
+        template = loader.get_template('claim/not_authorized.html')
+        return HttpResponse(template.render({}, request))
+
     template = loader.get_template('claim/stat_kv.html')
 
     start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
@@ -100,6 +188,10 @@ def stat_kv(request):
 
 # Statistics for questions
 def stat_question(request):
+    if not request.user.is_authenticated:
+        template = loader.get_template('claim/not_authorized.html')
+        return HttpResponse(template.render({}, request))
+
     template = loader.get_template('claim/stat_question.html')
 
     start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )

@@ -71,9 +71,14 @@
   <header>
     <nav>
       <a href='/'>Статистика</a>
-      <a href='stat_kv'>Статистика по КВ</a>
-      <a href='stat_question'>Статистика по вопросам</a>
-      <a href='add_error'>Добавить ошибку</a>
+      {% if group == 'view' or group == 'work' %}
+        <a href='stat_kv'>Статистика по КВ</a>
+        <a href='stat_question'>Статистика по вопросам</a>
+        {% if group == 'work' %}
+          <a href='add_error'>Добавить ошибку</a>
+        {% endif %}
+      {% endif %}
+      <a style='float:right' href='site_logout'>Выход</a>
     </nav>
   </header>
   <h1>{{ title }}</h1>

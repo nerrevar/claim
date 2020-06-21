@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Авторизация</title>
+  <style>
+    label {
+      display: inline-block;
+      width: 200px;
+    }
+    input {
+      display: inline-block;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <form method="post" action="/log_in">
+    <label for="username">Имя пользователя</label>
+    <input id="username" type="text" name="username" />
+    <br>
+    <label for="password">Пароль</label>
+    <input id="password" type="password" name="password" />
+    <br>
+    <input type="submit" value="Войти" />
+  </form>
+</body>
+</html>
