@@ -89,7 +89,7 @@ class KV(models.Model):
 class Claim(models.Model):
     KV_name = models.ForeignKey('KV', on_delete = models.CASCADE, to_field = 'KV_name')
     question_number = models.ForeignKey('Question', on_delete = models.CASCADE, to_field = 'question_number')
-    error_date = models.DateField(auto_now_add=True)
+    error_date = models.DateField()
 
     def __str__(self):
         return '{0} -- вопрос №{1} -- {2}'.format(self.error_date, self.question_number, self.KV_name)

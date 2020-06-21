@@ -118,14 +118,19 @@ def stat_question(request):
 @csrf_exempt
 def write_error(request):
     data = request.POST
+    err_date = date.today()
     try:
         kv = KV.objects.get( KV_name=data.get('kv_name') )
         q = Question.objects.get( question_number=data.get('question').split('.')[0] )
+        prev = data.get('prev')
         if kv:
             if q:
+                if prev == 'true':
+                    err_date = date.today().replace(day=1) - timedelta(1)
                 c = Claim(
                     KV_name=kv,
-                    question_number=q
+                    question_number=q,
+                    error_date=err_date
                 )
                 result = c.save()
                 return HttpResponse(result)
