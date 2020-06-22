@@ -6,7 +6,8 @@
       "/write_error",
       {
         kv_name: $("#kv_select").val(),
-        question: $("#q_select").val()
+        question: $("#q_select").val(),
+        prev: $("#prev").prop("checked")
       }
     )
     .done(function(message){
@@ -41,6 +42,8 @@
       <option value="{{ q.question_number }}. {{ q.question_text }}" />
     {% endfor %}
   </datalist>
+  <input type="checkbox" id="prev" />
+  <label for="prev">Отнести к прошлому месяцу</label>
   <div>
     <button onclick="add_error()">Добавить</button>
     <span id="add_result_positive" style="color: green;" hidden >Ошибка успешно добавлена</span>

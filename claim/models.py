@@ -24,6 +24,21 @@ class Group(models.Model):
             err_count += len(Claim.objects.filter(error_date__range=(start_date, end_date)).filter(KV_name=kv.KV_name))
         return err_count
 
+class Captain(models.Model):
+    KV_name = models.ForeignKey(
+        'KV',
+        on_delete = models.CASCADE,
+        to_field = 'KV_name'
+    )
+    group_name = models.ForeignKey(
+        'Group',
+        on_delete = models.CASCADE,
+        to_field = 'group_name'
+    )
+
+    def __str__(self):
+        return '{0} -> {1}'.format(self.KV_name, self.group_name)
+
 
 class Question(models.Model):
     question_number = models.PositiveSmallIntegerField(unique = True)
@@ -88,11 +103,14 @@ class KV(models.Model):
             error_count.append( len( Claim.objects.filter(error_date__range=(start_date, end_date)).filter(question_number=q.question_number, KV_name=self.KV_name) ) )
         return error_count
 
+    def Group_name(kv_name):
+        return KV.objects.filter(KV_name=kv_name).first().group_name.group_name
+
 
 class Claim(models.Model):
     KV_name = models.ForeignKey('KV', on_delete = models.CASCADE, to_field = 'KV_name')
     question_number = models.ForeignKey('Question', on_delete = models.CASCADE, to_field = 'question_number')
-    error_date = models.DateField(auto_now_add=True)
+    error_date = models.DateField()
 
     def __str__(self):
         return '{0} -- вопрос №{1} -- {2}'.format(self.error_date, self.question_number, self.KV_name)
