@@ -115,10 +115,13 @@ def stat(request):
         count_arr = dict.fromkeys([g.group_name for g in Group.objects.order_by('group_name')])
     else:
         if user_group == 'kv':
+            print(request.user)
             count_arr = dict.fromkeys([KV.Group_name(request.user)])
         if user_group == 'captain':
             group_arr = [KV.Group_name(str(request.user))]
-            captain_group_name = Captain.objects.filter(KV_name=str(request.user)).first().group_name.group_name
+            captain_group_name = Captain.objects.filter(
+                KV_name=KV.objects.get(KV_login=str(request.user)).KV_name
+            ).first().group_name.group_name
             if captain_group_name != KV.Group_name(request.user):
                 group_arr.append(captain_group_name)
             count_arr = dict.fromkeys(group_arr)
@@ -130,7 +133,9 @@ def stat(request):
             else:
                 count_arr[group.group_name] = dict.fromkeys([kv.KV_name for kv in group.Members])
                 if user_group == 'captain':
-                    captain_group_name = Captain.objects.filter(KV_name=str(request.user)).first().group_name.group_name
+                    captain_group_name = Captain.objects.filter(
+                        KV_name=KV.objects.get(KV_login=str(request.user)).KV_name
+                    ).first().group_name.group_name
                     if captain_group_name == group.group_name:
                         count_arr[group.group_name]['summary'] = group.Error_count_filtered(start_date, end_date)
                         count_arr[group.group_name]['question'] = list()
@@ -149,7 +154,7 @@ def stat(request):
                     count_arr[group.group_name]['question'].append(group.Error_count_filtered(start_date, end_date))
             for kv in group.Members:
                 if user_group in ('kv', 'captain'):
-                    if kv.KV_name == str(request.user) or Captain.objects.filter(KV_name=str(request.user), group_name=group.group_name):
+                    if kv.KV_login == str(request.user) or Captain.objects.filter(KV_name=KV.objects.get(KV_login=str(request.user)).KV_name, group_name=group.group_name):
                         count_arr[group.group_name][kv.KV_name] = list()
                         count_arr[group.group_name][kv.KV_name].append(kv.KV_name)
                         count_arr[group.group_name][kv.KV_name].append(kv.KV_login)
