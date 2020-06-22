@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.template import loader
+from django.contrib.auth.hashers import make_password
 
 from datetime import date, timedelta
 
@@ -46,6 +48,30 @@ def site_logout(request):
     logout(request)
     return redirect('/')
 
+def change_password_view(request):
+    template = loader.get_template('claim/change_password.html')
+    return HttpResponse(template.render({}, request))
+
+@csrf_exempt
+def change_password(request):
+    try:
+        old_password = request.POST['old_password']
+        new_password = request.POST['new_password']
+        confirm = request.POST['confirm']
+        print('values')
+        if new_password != confirm:
+            return redirect('/change_password_view?status=error&error=notmatch')
+        user = authenticate(request, username=str(request.user), password=old_password)
+        print('user ', user)
+        if user is not None:
+            print('check password')
+            user.set_password(new_password)
+            user.save()
+            return redirect('/auth')
+        else:
+            return redirect('/change_password_view?status=error&error=invalid')
+    except:
+        return HttpResponse('error')
 
 
 # Add new error page
@@ -79,7 +105,6 @@ def stat(request):
     if request.user.groups.filter(name='pret_work').exists():
         user_group = 'work'
 
-    print(user_group)
 
     template = loader.get_template('claim/stat.html')
 
@@ -136,8 +161,6 @@ def stat(request):
                     count_arr[group.group_name][kv.KV_name].append(kv.KV_login)
                     count_arr[group.group_name][kv.KV_name].extend(kv.Error_count_list_filtered(start_date, end_date))
                     count_arr[group.group_name][kv.KV_name].append(kv.Error_summary_filtered(start_date, end_date))
-
-    print(count_arr)
 
     summary_arr = list()
     summary_arr.append('')
