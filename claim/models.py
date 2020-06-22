@@ -103,8 +103,8 @@ class KV(models.Model):
             error_count.append( len( Claim.objects.filter(error_date__range=(start_date, end_date)).filter(question_number=q.question_number, KV_name=self.KV_name) ) )
         return error_count
 
-    def Group_name(kv_name):
-        return KV.objects.filter(KV_name=kv_name).first().group_name.group_name
+    def Group_name(kv_login):
+        return KV.objects.filter(KV_login=kv_login).first().group_name.group_name
 
 
 class Claim(models.Model):
