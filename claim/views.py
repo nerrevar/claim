@@ -108,8 +108,12 @@ def stat(request):
 
     template = loader.get_template('claim/stat.html')
 
-    start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
-    end_date = date.fromisoformat( request.COOKIES.get('end_date', get_end_month()) )
+    try:
+        start_date = date.fromisoformat( request.COOKIES.get('start_date', get_start_month()) )
+        end_date = date.fromisoformat( request.COOKIES.get('end_date', get_end_month()) )
+    except:
+        start_date = get_start_month()
+        end_date = get_end_month()
 
     if user_group not in ('kv', 'captain'):
         count_arr = dict.fromkeys([g.group_name for g in Group.objects.order_by('group_name')])

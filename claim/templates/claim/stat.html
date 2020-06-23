@@ -19,7 +19,9 @@
 {% block scripts %}
 {% endblock %}
 {% block main %}
-<p>Всего ошибок: <b>{{ claim_len }}</b></p>
+{% if group == 'view' or group == 'work' %}
+  <p>Всего ошибок: <b>{{ claim_len }}</b></p>
+{% endif %}
 <table>
   <thead>
     <tr>
