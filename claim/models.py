@@ -52,18 +52,18 @@ class Question(models.Model):
         return Claim.objects.filter(question_number=self.question_number).count()
 
     def Count_filtered(self, start_date, end_date):
-        return Claim.objects.filter(error_date__range=(start_date, end_date)).filter(question_number=self.question_number).count()
+        return Claim.objects.filter(error_date__range=(start_date, end_date)).filter(question_number=self.id).count()
 
     def Count_by_group(self, group_name):
         count = 0
         for kv in Group.objects.get(group_name=group_name).Members:
-            count += len(Claim.objects.filter(KV_name=kv.KV_name, question_number=self.question_number))
+            count += len(Claim.objects.filter(KV_name=kv.KV_name, question_number=self.id))
         return count
 
     def Count_by_group_filtered(self, group_name, start_date, end_date):
         count = 0
         for kv in Group.objects.get(group_name=group_name).Members:
-            count += len(Claim.objects.filter(error_date__range=(start_date, end_date)).filter(KV_name=kv.KV_name, question_number=self.question_number))
+            count += len(Claim.objects.filter(error_date__range=(start_date, end_date)).filter(KV_name=kv.KV_name, question_number=self.id))
         return count
 
 
