@@ -88,7 +88,7 @@ class KV(models.Model):
     def Error_count_list(self):
         error_count = list()
         for q in Question.objects.order_by('question_number'):
-            error_count.append( Claim.objects.filter(question_number=q.question_number, KV_name=self.KV_name).count() )
+            error_count.append( Claim.objects.filter(question_number=q.id, KV_name=self.KV_name).count() )
         return error_count
 
     def Error_summary_filtered(self, start_date, end_date):
@@ -97,7 +97,7 @@ class KV(models.Model):
     def Error_count_list_filtered(self, start_date, end_date):
         error_count = list()
         for q in Question.objects.order_by('question_number'):
-            error_count.append( len( Claim.objects.filter(error_date__range=(start_date, end_date)).filter(question_number=q.question_number, KV_name=self.KV_name) ) )
+            error_count.append( len( Claim.objects.filter(error_date__range=(start_date, end_date)).filter(question_number=q.id, KV_name=self.KV_name) ) )
         return error_count
 
     def Group_name(kv_login):
@@ -106,7 +106,7 @@ class KV(models.Model):
 
 class Claim(models.Model):
     KV_name = models.ForeignKey('KV', on_delete = models.CASCADE, to_field = 'KV_name')
-    question_number = models.ForeignKey('Question', on_delete = models.CASCADE, to_field = 'question_number')
+    question_number = models.ForeignKey('Question', on_delete = models.CASCADE)
     error_date = models.DateField()
 
     def __str__(self):
