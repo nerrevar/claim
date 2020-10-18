@@ -49,7 +49,10 @@
           </div>
           <div class="table_cell">{{ kv.summary }}</div>
         </div>
-        <div class="table_row bold">
+        <div
+          class="table_row bold"
+          v-if="getUser.role !== 'pret_kv'"
+        >
           <div class="table_cell"></div>
           <div class="table_cell">Итого</div>
           <div
