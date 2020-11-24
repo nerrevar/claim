@@ -64,7 +64,7 @@ export default {
               ]
             },
             {
-              name: 'Добавить ошибку',
+              name: 'Добавить ошибки',
               type: 'single',
               code: 'add_error',
               privacy: 2
