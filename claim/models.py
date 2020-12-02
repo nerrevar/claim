@@ -111,6 +111,7 @@ class Claim(models.Model):
     KV_name = models.ForeignKey('KV', on_delete = models.CASCADE, to_field = 'KV_name')
     question_number = models.ForeignKey('Question', on_delete = models.CASCADE)
     error_date = models.DateField()
+    form_id = models.IntegerField(default=100)
 
     def __str__(self):
         return '{0} -- вопрос №{1} -- {2}'.format(self.error_date, self.question_number, self.KV_name)
