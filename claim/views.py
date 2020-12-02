@@ -126,6 +126,29 @@ def stat_question(request):
     sorted_arr = {k: error_count_arr[k] for k in sorted(error_count_arr, key=error_count_arr.get, reverse=True)}
     return JsonResponse(sorted_arr, safe=False)
 
+# Returns claim's numbers
+def get_numbers(request):
+    try:
+        start_date = date.fromisoformat( request.GET.get('start_date', get_start_month()) )
+        end_date = date.fromisoformat( request.GET.get('end_date', get_end_month()) )
+    except:
+        start_date = get_start_month()
+        end_date = get_end_month()
+
+    login = request.GET.get('login')
+    resp = [
+        {
+            'number': c.form_id,
+            'question': c.question_number.question_text
+        }
+        for c in Claim.objects.filter(KV_name=KV.objects.get(KV_login=login).KV_name, error_date__range=(start_date, end_date))
+    ]
+    print(KV.objects.get(KV_login=login))
+    if (len(resp) == 0):
+      return JsonResponse({'status': 'zero'})
+    else:
+      return JsonResponse(resp, safe=False)
+
 # Get data for error adding
 def get_error_fill_data(request):
     data = {
