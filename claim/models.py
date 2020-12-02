@@ -42,7 +42,7 @@ class Captain(models.Model):
 
 class Question(models.Model):
     question_number = models.PositiveSmallIntegerField(unique = True)
-    question_text = models.CharField(max_length = 100)
+    question_text = models.CharField(max_length = 1000)
 
     def __str__(self):
         return '{0}. {1}'.format(self.question_number, self.question_text)

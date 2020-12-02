@@ -1,7 +1,7 @@
 <template>
   <form class="wrapper">
-    <label for="kv_select">Список ошибок: </label>
-    <input type="text" id="error_list" name="error_list" />
+    <label>Список ошибок: </label>
+    <textarea type="text" id="error_list"></textarea>
     <input type="checkbox" id="prev" name="prev" />
     <label for="prev">Отнести к прошлому месяцу</label>
     <div>
@@ -14,13 +14,13 @@
           class="green"
           v-show="response === 'True'"
         >
-          Ошибка успешно добавлена
+          Ошибки успешно добавлены
         </span>
         <span
           class="red"
           v-show="response !== 'True'"
         >
-          Ошибка не добавлена
+          Ошибки не добавлены
         </span>
       </div>
     </div>
@@ -38,12 +38,29 @@ export default {
   methods: {
     addError(e) {
       e.preventDefault()
+      let data = {
+        error_list: document.getElementById('error_list').value.split('\n').map(
+          el => {
+            let arr = el.split(',')
+            return {
+              login: arr[0].trim(),
+              question_text: arr[1].trim(),
+              form_id: arr[2].trim(),
+            }
+          }
+        ),
+        prev: document.getElementById('prev').checked,
+      }
+      console.log(data)
       fetch(
         'write_error_multiple',
         {
           method: 'POST',
           mode: 'same-origin',
-          body: new FormData(document.querySelector("form")), // TODO: Convert to JSON
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data),
           credentials: 'include',
         }
       ).then(
@@ -74,6 +91,10 @@ label
 
 input
   width: 100%
+
+textarea
+  width: 100%
+  height: 300px
 
 #prev
   width: 16px

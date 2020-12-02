@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+import json
+
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -225,25 +227,25 @@ def write_error(request):
 # Add error multiple
 @csrf_exempt
 def write_error_multiple(request):
-    data = request.POST # TODO: Parse from JSON
-    if (data.get('prev') == 'false'):
-        err_date = date.today()
-    else:
+    data = json.loads(request.body)
+    if (data.get('prev') == True):
         err_date = get_end_previous_month()
+    else:
+        err_date = date.today()
     claim_arr = data.get('error_list')
-    for claim in data.get('error_arr'):
+    for claim in claim_arr:
         try:
             Claim.objects.get(
-                KV_name=claim.kv,
-                question_number=Question.objects.get(question_text=claim.question_text).question_number,
-                form_id=claim.form_id
+                KV_name=KV.objects.get(KV_login=claim.get('login')),
+                question_number=Question.objects.get(question_text=claim.get('question_text')),
+                form_id=claim.get('form_id')
             )
         except:
             tmp_claim = Claim(
-                KV_name=KV.objects.get(KV_name=claim.kv),
-                question_number=Question.objects.get(question_number=claim.question_number),
+                KV_name=KV.objects.get(KV_login=claim.get('login')),
+                question_number=Question.objects.get(question_text=claim.get('question_text')),
                 error_date=err_date,
-                form_id=claim.form_id
+                form_id=claim.get('form_id')
             )
             tmp_claim.save()
     return HttpResponse(True)
