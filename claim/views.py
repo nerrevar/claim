@@ -25,6 +25,7 @@ def get_end_month():
       tmp_date = tmp_date.replace(month = tmp_date.month + 1)
     else:
       tmp_date = tmp_date.replace(month = 1)
+      tmp_date = tmp_date.replace(year = tmp_date.year + 1)
     tmp_date -= timedelta(1)
     return tmp_date.isoformat()
 
