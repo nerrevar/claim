@@ -27,6 +27,7 @@ import DatePicker from './other/date.picker'
 import Statistic from './statistic/statistic'
 import StatisticKv from './statistic/statistic.kv'
 import StatisticQuestion from './statistic/statistic.question'
+import ClaimNumber from './other/claim.number'
 import AddError from './other/add.error'
 import AddErrorMultiple from './other/add.error.multiple'
 import UserAdd from './user/add'
@@ -63,6 +64,12 @@ export default {
                   privacy: 1
                 }
               ]
+            },
+            {
+              name: 'Номера анкет',
+              type: 'single',
+              code: 'claim_number',
+              privacy: 0,
             },
             {
               name: 'Добавить ошибку',
@@ -105,6 +112,7 @@ export default {
     Statistic,
     StatisticKv,
     StatisticQuestion,
+    ClaimNumber,
     AddError,
     AddErrorMultiple,
     UserAdd,
@@ -119,6 +127,7 @@ export default {
         case 'stat': return 'Statistic'
         case 'stat_kv': return 'StatisticKv'
         case 'stat_question': return 'StatisticQuestion'
+        case 'claim_number': return 'ClaimNumber'
         case 'add_error': return 'AddError'
         case 'add_error_multiple': return 'AddErrorMultiple'
         case 'user_add': return 'UserAdd'

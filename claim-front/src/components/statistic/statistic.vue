@@ -40,7 +40,12 @@
             :kv="kv"
           >
             <div class="table_cell sticky">{{ kv.name }}</div>
-            <div class="table_cell sticky">{{ kv.login }}</div>
+            <div
+              class="table_cell sticky link"
+              @click="redirectNumber($event)"
+            >
+              {{ kv.login }}
+            </div>
             <div
               class="table_cell"
               v-for="(q, q_index) in question"
@@ -92,7 +97,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'Statistic',
@@ -105,6 +110,7 @@ export default {
   },
   computed: mapGetters(['getUser', 'getStartDate', 'getEndDate']),
   methods: {
+    ...mapActions(['setCurrentPage']),
     fetchClaims () {
       fetch(
         `get_stat?user=${this.getUser.login}&start_date=${this.getStartDate}&end_date=${this.getEndDate}`
@@ -177,7 +183,16 @@ export default {
           for (let errCount of Object.values(kv.errCountArr))
             count += errCount
       return count
-    }
+    },
+    redirectNumber (e) {
+      this.setCurrentPage({
+        name: 'Номера анкет',
+        type: 'single',
+        code: 'claim_number',
+        privacy: 0,
+        login: e.target.innerText.trim()
+      })
+    },
   },
   mounted () { this.fetchClaims() },
   watch: {
@@ -225,6 +240,9 @@ export default {
   position: sticky
   left: 0
   background: white
+
+.link
+  color: blue
 
 .bold
   font-weight: 800

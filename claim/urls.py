@@ -8,6 +8,7 @@ urlpatterns = [
     path('get_stat', views.stat, name='stat'), # Main statistic
     path('stat_kv', views.stat_kv, name='stat_kv'), # Statistic on kv
     path('stat_question', views.stat_question, name='stat_question'), # Statistic on questions
+    path('get_numbers', views.get_numbers, name='get_numbers'),
     path('get_error_fill_data', views.get_error_fill_data, name='get_error_fill_data'), # Data for add_error
     path('write_error', views.write_error, name='write_error'), # For write error xhr
     path('write_error_multiple', views.write_error_multiple, name='write_error_multiple'),
