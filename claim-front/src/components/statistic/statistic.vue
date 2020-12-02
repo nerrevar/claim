@@ -1,57 +1,78 @@
 <template>
-  <div class="wrapper">
-    <div class="table">
-      <div class="table_row bold head">
-        <div class="table_cell">ФИО</div>
-        <div class="table_cell">Логин</div>
-        <div
-          class="table_cell"
-          v-for="(q, index) in question"
-          :key="index"
-          :q="q"
-        >
-          <div>{{ q.number }}</div>
-          <div>{{ q.text }}</div>
-        </div>
-        <div class="table_cell">Итого</div>
-      </div>
-      <div
-        class="table_block"
-        v-for="(group, index) in filterGroups(group)"
-        :key="index"
-        :group="group"
-      >
-        <div class="table_row">
-          <div class="table_cell bold">{{ group.name }}</div>
-          <div class="table_cell bold">{{ group.summary }}</div>
-          <div
-            class="table_cell noborder"
-            v-for="(q, q_index) in question"
-            :key="q_index"
-          ></div>
-          <div class="table_cell noborder"></div>
-        </div>
-        <div
-          class="table_row"
-          v-for="(kv, kv_index) in filterKv(group.kv)"
-          :key="kv_index"
-          :kv="kv"
-        >
-          <div class="table_cell sticky">{{ kv.name }}</div>
-          <div class="table_cell sticky">{{ kv.login }}</div>
+  <div class="wrapper_2">
+    <div class="total"><b>Всего ошибок: {{ totalCount() }}</b></div>
+    <div class="wrapper">
+      <div class="table">
+        <div class="table_row bold head">
+          <div class="table_cell">ФИО</div>
+          <div class="table_cell">Логин</div>
           <div
             class="table_cell"
-            v-for="(q, q_index) in question"
-            :key="q_index"
+            v-for="(q, index) in question"
+            :key="index"
             :q="q"
           >
-            {{ kv.errCountArr[q.number] || 0 }}
+            <div>{{ q.number }}</div>
+            <div>{{ q.text }}</div>
           </div>
-          <div class="table_cell">{{ kv.summary }}</div>
+          <div class="table_cell">Итого</div>
+        </div>
+        <div
+          class="table_block"
+          v-for="(group, index) in filterGroups(group)"
+          :key="index"
+          :group="group"
+        >
+          <div class="table_row">
+            <div class="table_cell bold">{{ group.name }}</div>
+            <div class="table_cell bold">{{ group.summary }}</div>
+            <div
+              class="table_cell noborder"
+              v-for="(q, q_index) in question"
+              :key="q_index"
+            ></div>
+            <div class="table_cell noborder"></div>
+          </div>
+          <div
+            class="table_row"
+            v-for="(kv, kv_index) in filterKv(group.kv)"
+            :key="kv_index"
+            :kv="kv"
+          >
+            <div class="table_cell sticky">{{ kv.name }}</div>
+            <div class="table_cell sticky">{{ kv.login }}</div>
+            <div
+              class="table_cell"
+              v-for="(q, q_index) in question"
+              :key="q_index"
+              :q="q"
+            >
+              {{ kv.errCountArr[q.number] || 0 }}
+            </div>
+            <div class="table_cell">{{ kv.summary }}</div>
+          </div>
+          <div
+            class="table_row bold"
+            v-if="getUser.role !== 'pret_kv'"
+          >
+            <div class="table_cell"></div>
+            <div class="table_cell">Итого</div>
+            <div
+              class="table_cell"
+              v-for="(q, index) in question"
+              :key="index"
+              :q="q"
+            >
+              <span v-text="groupCountByQuestion(group, q.number)"></span>
+            </div>
+            <div class="table_cell">
+              <span v-text="groupCount(group)"></span>
+            </div>
+          </div>
         </div>
         <div
           class="table_row bold"
-          v-if="getUser.role !== 'pret_kv'"
+          v-if="!['pret_captain', 'pret_kv'].includes(getUser.role)"
         >
           <div class="table_cell"></div>
           <div class="table_cell">Итого</div>
@@ -61,28 +82,10 @@
             :key="index"
             :q="q"
           >
-            <span v-text="groupCountByQuestion(group, q.number)"></span>
+            {{ q.summary }}
           </div>
-          <div class="table_cell">
-            <span v-text="groupCount(group)"></span>
-          </div>
+          <div class="table_cell noborder"></div>
         </div>
-      </div>
-      <div
-        class="table_row bold"
-        v-if="!['pret_captain', 'pret_kv'].includes(getUser.role)"
-      >
-        <div class="table_cell"></div>
-        <div class="table_cell">Итого</div>
-        <div
-          class="table_cell"
-          v-for="(q, index) in question"
-          :key="index"
-          :q="q"
-        >
-          {{ q.summary }}
-        </div>
-        <div class="table_cell noborder"></div>
       </div>
     </div>
   </div>
@@ -110,7 +113,7 @@ export default {
       ).then(
         response => {
           this.group = response.group
-          this.question = response.question
+          this.question = response.question.sort((a,b) => a.number > b.number)
           this.captain = response.captain
           for (let groupNum in this.group)
             for (let kvNum in this.group[groupNum].kv) {
@@ -165,6 +168,14 @@ export default {
       for (let kv of group.kv)
         for (let errCount of Object.values(kv.errCountArr))
           count += errCount
+      return count
+    },
+    totalCount () {
+      let count = 0
+      for (let group of this.group)
+        for (let kv of group.kv)
+          for (let errCount of Object.values(kv.errCountArr))
+            count += errCount
       return count
     }
   },

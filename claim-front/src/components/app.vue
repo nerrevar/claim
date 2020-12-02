@@ -28,6 +28,7 @@ import Statistic from './statistic/statistic'
 import StatisticKv from './statistic/statistic.kv'
 import StatisticQuestion from './statistic/statistic.question'
 import AddError from './other/add.error'
+import AddErrorMultiple from './other/add.error.multiple'
 import UserAdd from './user/add'
 import UserCheck from './user/check'
 import UserSettings from './auth/settings'
@@ -70,6 +71,12 @@ export default {
               privacy: 2
             },
             {
+              name: 'Добавить ошибки списком',
+              type: 'single',
+              code: 'add_error_multiple',
+              privacy: 2
+            },
+            {
               name: 'Пользователь',
               type: 'multiple',
               privacy: 3,
@@ -99,6 +106,7 @@ export default {
     StatisticKv,
     StatisticQuestion,
     AddError,
+    AddErrorMultiple,
     UserAdd,
     UserCheck,
     UserSettings,
@@ -112,6 +120,7 @@ export default {
         case 'stat_kv': return 'StatisticKv'
         case 'stat_question': return 'StatisticQuestion'
         case 'add_error': return 'AddError'
+        case 'add_error_multiple': return 'AddErrorMultiple'
         case 'user_add': return 'UserAdd'
         case 'user_check': return 'UserCheck'
         case 'user_settings': return 'UserSettings'

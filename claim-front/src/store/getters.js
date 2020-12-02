@@ -24,7 +24,11 @@ export const getEndDate = state => {
     return state.endDate
   else {
     let curr_date = new Date()
-    let new_date = new Date(curr_date.getFullYear(), curr_date.getMonth() + 1, 0)
+    let new_date = ''
+    if (curr_date.getMonth() <=10)
+      new_date = new Date(curr_date.getFullYear(), curr_date.getMonth() + 1, 0)
+    else
+      new_date = new Date(curr_date.getFullYear(), 0, 0)
     let date_str = '' + new_date.getFullYear() + '-'
     if (new_date.getMonth() < 9){
       let month = new_date.getMonth() + 1

@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+import json
+
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -21,10 +23,20 @@ def get_start_month():
 def get_end_month():
     tmp_date = date.today()
     tmp_date = tmp_date.replace(day=1)
-    tmp_date = tmp_date.replace(month = tmp_date.month + 1)
+    if tmp_date.month <= 11:
+      tmp_date = tmp_date.replace(month = tmp_date.month + 1)
+    else:
+      tmp_date = tmp_date.replace(month = 1)
+      tmp_date = tmp_date.replace(year = tmp_date.year + 1)
     tmp_date -= timedelta(1)
     return tmp_date.isoformat()
 
+# Internal use
+def get_end_previous_month():
+    tmp_date = date.today()
+    tmp_date = tmp_date.replace(day=1)
+    tmp_date -= timedelta(1)
+    return tmp_date
 
 # Return main template
 def index(request):
@@ -188,7 +200,10 @@ def site_logout(request):
 @csrf_exempt
 def write_error(request):
     data = request.POST
-    err_date = date.today()
+    if (data.get('prev') == 'false'):
+      err_date = date.today()
+    else:
+      err_date = get_end_previous_month()
     try:
         kv = KV.objects.get( KV_name=data.get('kv_name') )
         q = Question.objects.get( question_number=data.get('question').split('.')[0] )
@@ -208,6 +223,32 @@ def write_error(request):
         return HttpResponse('Params')
     except:
         return HttpResponse(False)
+
+# Add error multiple
+@csrf_exempt
+def write_error_multiple(request):
+    data = json.loads(request.body)
+    if (data.get('prev') == True):
+        err_date = get_end_previous_month()
+    else:
+        err_date = date.today()
+    claim_arr = data.get('error_list')
+    for claim in claim_arr:
+        try:
+            Claim.objects.get(
+                KV_name=KV.objects.get(KV_login=claim.get('login')),
+                question_number=Question.objects.get(question_text=claim.get('question_text')),
+                form_id=claim.get('form_id')
+            )
+        except:
+            tmp_claim = Claim(
+                KV_name=KV.objects.get(KV_login=claim.get('login')),
+                question_number=Question.objects.get(question_text=claim.get('question_text')),
+                error_date=err_date,
+                form_id=claim.get('form_id')
+            )
+            tmp_claim.save()
+    return HttpResponse(True)
 
 # Add user
 @csrf_exempt

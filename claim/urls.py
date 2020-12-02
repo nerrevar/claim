@@ -10,6 +10,7 @@ urlpatterns = [
     path('stat_question', views.stat_question, name='stat_question'), # Statistic on questions
     path('get_error_fill_data', views.get_error_fill_data, name='get_error_fill_data'), # Data for add_error
     path('write_error', views.write_error, name='write_error'), # For write error xhr
+    path('write_error_multiple', views.write_error_multiple, name='write_error_multiple'),
     path('get_groups', views.get_groups, name='get_groups'), # Return group names
     path('get_login', views.get_login, name='get_login'), # Return array of logins
     path('user_add', views.user_add, name='user_add'), # Add user
