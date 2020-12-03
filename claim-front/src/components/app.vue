@@ -56,12 +56,12 @@ export default {
                 {
                   code: 'stat_kv',
                   name: 'Статистика по КВ',
-                  privacy: 1
+                  privacy: 2
                 },
                 {
                   code: 'stat_question',
                   name: 'Статистика по вопросам',
-                  privacy: 1
+                  privacy: 2
                 }
               ]
             },
@@ -153,7 +153,13 @@ export default {
     ).then(
       response => {
         if (response.status === 'True') {
-          this.setUser({ name: response.name, login: response.login, project: response.project, role: response.role })
+          this.setUser({
+            name: response.name,
+            login: response.login,
+            project: response.project,
+            role: response.role,
+            group_name: response.group_name,
+          })
           this.setCurrentPage({ code: 'start' })
         }
       }

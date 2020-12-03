@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group as Django_group
 
-from .models import Question, KV, Claim, Group, Captain
+from .models import Question, KV, Claim, Group
 
 # Internal use
 def get_start_month():
@@ -55,42 +55,35 @@ def stat(request):
     response = {
         'question': [
             {
-                'number': q.question_number,
-                'text': q.question_text,
-                'summary': q.Count_filtered(start_date, end_date)
+                'number': q.number,
+                'text': q.text,
+                'summary': q.Count(start_date, end_date)
             }
             for q in Question.objects.all()
         ],
         'group': [
             {
-                'name': group.group_name,
-                'summary': group.Error_count_filtered(start_date, end_date),
+                'name': group.name,
+                'summary': group.Count(start_date, end_date),
                 'kv': [
                     {
-                        'name': kv.KV_name,
-                        'login': kv.KV_login,
-                        'summary': kv.Error_summary_filtered(start_date, end_date),
+                        'name': kv.name,
+                        'login': kv.login,
+                        'summary': kv.Count(start_date, end_date),
                         'errCountArr': {}
                     }
-                    for kv in KV.objects.filter(group_name=group.group_name)
+                    for kv in group.Members()
                 ]
             }
             for group in Group.objects.all()
         ],
         'claim': [
             {
-                'kvName': claim.KV_name.KV_name,
-                'questionNumber': claim.question_number.question_number,
+                'kvName': claim.kv.name,
+                'questionNumber': claim.question.number,
                 'errorDate': claim.error_date
             }
-            for claim in Claim.objects.filter(error_date__range=(start_date, end_date))
-        ],
-        'captain': [
-            {
-                'captainName': c.KV_name.KV_name,
-                'groupName': c.group_name.group_name
-            }
-            for c in Captain.objects.all()
+            for claim in Claim.ByDate(start_date, end_date)
         ]
     }
 
@@ -105,12 +98,12 @@ def stat_kv(request):
         start_date = get_start_month()
         end_date = get_end_month()
 
-    error_count_arr = {kv.KV_name: kv.Error_summary_filtered(start_date, end_date) for kv in KV.objects.all()}
+    error_count_arr = {kv.name: kv.Count(start_date, end_date) for kv in KV.objects.all()}
     sorted_arr = {k: error_count_arr[k] for k in sorted(error_count_arr, key=error_count_arr.get, reverse=True)}
     count_arr = list()
     for key, value in sorted_arr.items():
-        kv = KV.objects.get(KV_name=key)
-        count_arr.append([kv.KV_name, kv.KV_login, value])
+        kv = KV.objects.get(name=key)
+        count_arr.append([kv.name, kv.login, value])
     return JsonResponse(count_arr, safe=False)
 
 # Statistics for questions
@@ -122,7 +115,7 @@ def stat_question(request):
         start_date = get_start_month()
         end_date = get_end_month()
 
-    error_count_arr = {'{0}. {1}'.format(q.question_number, q.question_text): q.Count_filtered(start_date, end_date) for q in Question.objects.all()}
+    error_count_arr = {'{0}. {1}'.format(q.number, q.text): q.Count(start_date, end_date) for q in Question.objects.all()}
     sorted_arr = {k: error_count_arr[k] for k in sorted(error_count_arr, key=error_count_arr.get, reverse=True)}
     return JsonResponse(sorted_arr, safe=False)
 
@@ -139,11 +132,10 @@ def get_numbers(request):
     resp = [
         {
             'number': c.form_id,
-            'question': c.question_number.question_text
+            'question': c.question.text
         }
-        for c in Claim.objects.filter(KV_name=KV.objects.get(KV_login=login).KV_name, error_date__range=(start_date, end_date))
+        for c in Claim.ByKV(start_date, end_date, KV.objects.get(login=login))
     ]
-    print(KV.objects.get(KV_login=login))
     if (len(resp) == 0):
       return JsonResponse({'status': 'zero'})
     else:
@@ -154,15 +146,15 @@ def get_error_fill_data(request):
     data = {
         'question': [
             {
-                'number': q.question_number,
-                'text': q.question_text,
+                'number': q.number,
+                'text': q.text,
             }
             for q in Question.objects.all()
         ],
         'kvList': [
             {
-                'name': kv.KV_name,
-                'login': kv.KV_login
+                'name': kv.name,
+                'login': kv.login
             }
             for kv in KV.objects.all()
         ]
@@ -171,11 +163,11 @@ def get_error_fill_data(request):
 
 # Get groups
 def get_groups(request):
-    return JsonResponse([g.group_name for g in Group.objects.all()], safe=False)
+    return JsonResponse([g.name for g in Group.objects.all()], safe=False)
 
 # Get array of ligins
 def get_login(request):
-    return JsonResponse([kv.KV_login for kv in KV.objects.all()], safe=False)
+    return JsonResponse([kv.login for kv in KV.objects.all()], safe=False)
 
 # For xhr (post)
 # Login
@@ -187,9 +179,10 @@ def login(request):
             'login': request.session.get('user_login'),
             'role': [r for r in User.objects.get(username=request.session.get('user_login')).groups.all()][0].name,
             'project': 'mk',
+            'group_name': KV.objects.get(login=request.session.get('user_login')).group.name
         }
         if [r for r in User.objects.get(username=request.session.get('user_login')).groups.all()][0].name != 'pret_work':
-            data['name'] = KV.objects.get(KV_login=request.session.get('user_login')).KV_name
+            data['name'] = KV.objects.get(login=request.session.get('user_login')).name
         return JsonResponse(data, safe=False)
 
     try:
@@ -204,12 +197,13 @@ def login(request):
 
             data = {
                 'status': 'True',
-                'login': request.session.get('user_login'),
-                'role': [r for r in User.objects.get(username=request.session.get('user_login')).groups.all()][0].name,
+                'login': username,
+                'role': [r for r in User.objects.get(username=username).groups.all()][0].name,
                 'project': 'mk',
+                'group_name': KV.objects.get(login=username).group.name
             }
-            if [r for r in User.objects.get(username=request.session.get('user_login')).groups.all()][0].name != 'pret_work':
-                data['name'] = KV.objects.get(KV_login=request.session.get('user_login')).KV_name
+            if [r for r in User.objects.get(username=username).groups.all()][0].name != 'pret_work':
+                data['name'] = KV.objects.get(login=username).name
             return JsonResponse(data, safe=False)
     except:
         return JsonResponse({ 'status': False })
@@ -228,17 +222,15 @@ def write_error(request):
     else:
       err_date = get_end_previous_month()
     try:
-        kv = KV.objects.get( KV_name=data.get('kv_name') )
-        q = Question.objects.get( question_number=data.get('question').split('.')[0] )
+        kv = KV.objects.get(name=data.get('kv_name'))
+        q = Question.objects.get(number=data.get('question').split('.')[0])
         prev = data.get('prev')
         print(prev)
         if kv:
             if q:
-                if prev == 'on':
-                    err_date = date.today().replace(day=1) - timedelta(1)
                 c = Claim(
-                    KV_name=kv,
-                    question_number=q,
+                    kv=kv,
+                    question=q,
                     error_date=err_date
                 )
                 result = c.save()
@@ -259,14 +251,14 @@ def write_error_multiple(request):
     for claim in claim_arr:
         try:
             Claim.objects.get(
-                KV_name=KV.objects.get(KV_login=claim.get('login')),
-                question_number=Question.objects.get(question_text=claim.get('question_text')),
+                kv=KV.objects.get(login=claim.get('login')),
+                question=Question.objects.get(text=claim.get('question_text')),
                 form_id=claim.get('form_id')
             )
         except:
             tmp_claim = Claim(
-                KV_name=KV.objects.get(KV_login=claim.get('login')),
-                question_number=Question.objects.get(question_text=claim.get('question_text')),
+                kv=KV.objects.get(login=claim.get('login')),
+                question=Question.objects.get(text=claim.get('question_text')),
                 error_date=err_date,
                 form_id=claim.get('form_id')
             )
@@ -280,7 +272,7 @@ def user_add(request):
         name = request.POST.get('name')
         username = request.POST.get('username')
         django_group = request.POST.get('role')
-        group = Group.objects.get(group_name=request.POST.get('group'))
+        group = Group.objects.get(name=request.POST.get('group'))
 
         if (len(User.objects.filter(username=username)) > 0):
             return HttpResponse('User exist')
@@ -293,9 +285,9 @@ def user_add(request):
         user.save()
         user.groups.add(Django_group.objects.get(name=django_group))
         kv = KV(
-            KV_login=username,
-            KV_name=name,
-            group_name=Group.objects.get(group_name=group)
+            login=username,
+            name=name,
+            group=Group.objects.get(name=group)
         )
         kv.save()
         return HttpResponse(True)
