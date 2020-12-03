@@ -105,7 +105,6 @@ export default {
     return {
       question: [],
       group: [],
-      captain: [],
     }
   },
   computed: mapGetters(['getUser', 'getStartDate', 'getEndDate']),
@@ -120,7 +119,6 @@ export default {
         response => {
           this.group = response.group
           this.question = response.question.sort((a,b) => a.number > b.number)
-          this.captain = response.captain
           for (let groupNum in this.group)
             for (let kvNum in this.group[groupNum].kv) {
               this.group[groupNum].kv[kvNum]['errCountArr'] = {}
@@ -141,9 +139,7 @@ export default {
         case 'pret_work': return groupArr
         case 'pret_captain': {
           return groupArr.filter(
-            g => g.name === this.captain.filter(
-              c => c.captainName === this.getUser.name
-            )[0].groupName
+            g => g.name === this.getUser.group_name
           )
         }
         default: {

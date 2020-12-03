@@ -45,7 +45,13 @@ export default {
         response => {
           switch(response.status) {
             case 'True': {
-              this.setUser({ name: response.name, login: response.login, project: response.project, role: response.role })
+              this.setUser({
+                name: response.name,
+                login: response.login,
+                project: response.project,
+                role: response.role,
+                group_name: response.group_name,
+              })
               // setCurrentProject({ code: response.project_code })
               this.setCurrentPage({ code: 'stat' })
               break
