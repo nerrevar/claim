@@ -41,7 +41,7 @@ export default {
       let data = {
         error_list: document.getElementById('error_list').value.split('\n').map(
           el => {
-            let arr = el.split(',')
+            let arr = el.split(';')
             return {
               login: arr[0].trim(),
               question_text: arr[1].trim(),
