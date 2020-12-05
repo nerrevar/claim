@@ -45,12 +45,12 @@ def index(request):
 
 # Main statistics
 def stat(request):
-    try:
-        start_date = date.fromisoformat( request.GET.get('start_date', get_start_month()) )
-        end_date = date.fromisoformat( request.GET.get('end_date', get_end_month()) )
-    except:
-        start_date = get_start_month()
-        end_date = get_end_month()
+    # try:
+    start_date = date.fromisoformat( request.GET.get('start_date', get_start_month()) )
+    end_date = date.fromisoformat( request.GET.get('end_date', get_end_month()) )
+    # except:
+    #     start_date = get_start_month()
+    #     end_date = get_end_month()
 
     response = {
         'question': [

@@ -193,7 +193,6 @@ export default {
   mounted () { this.fetchClaims() },
   watch: {
     getStartDate: function () { this.fetchClaims() },
-    getEndDate: function () { this.fetchClaims() },
   }
 }
 </script>
