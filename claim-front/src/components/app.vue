@@ -160,7 +160,7 @@ export default {
             role: response.role,
             group_name: response.group_name,
           })
-          this.setCurrentPage({ code: 'start' })
+          this.setCurrentPage({ code: 'stat' })
         }
       }
     )
