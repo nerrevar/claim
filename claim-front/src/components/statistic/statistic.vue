@@ -221,6 +221,7 @@ export default {
   flex-flow: column nowrap
   border: 1px solid grey
   padding: 3px
+  max-width: 350px
 
 .noborder
   border: 0!important
