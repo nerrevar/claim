@@ -10,7 +10,7 @@
       <div class="table">
         <div class="table_row bold head">
           <div class="table_cell">ФИО</div>
-          <div class="table_cell">Логин</div>
+          <div class="table_cell small">Логин</div>
           <div
             class="table_cell"
             v-for="(q, index) in question"
@@ -30,7 +30,7 @@
         >
           <div class="table_row">
             <div class="table_cell bold">{{ group.name }}</div>
-            <div class="table_cell bold">{{ group.summary }}</div>
+            <div class="table_cell bold small">{{ group.summary }}</div>
             <div
               class="table_cell noborder"
               v-for="(q, q_index) in question"
@@ -44,9 +44,9 @@
             :key="kv_index"
             :kv="kv"
           >
-            <div class="table_cell sticky">{{ kv.name }}</div>
+            <div class="table_cell">{{ kv.name }}</div>
             <div
-              class="table_cell sticky link"
+              class="table_cell sticky link small"
               @click="redirectNumber($event)"
             >
               {{ kv.login }}
@@ -66,7 +66,7 @@
             v-if="getUser.role !== 'pret_kv'"
           >
             <div class="table_cell"></div>
-            <div class="table_cell">Итого</div>
+            <div class="table_cell small">Итого</div>
             <div
               class="table_cell"
               v-for="(q, index) in question"
@@ -85,7 +85,7 @@
           v-if="!['pret_captain', 'pret_kv'].includes(getUser.role)"
         >
           <div class="table_cell"></div>
-          <div class="table_cell">Итого</div>
+          <div class="table_cell small">Итого</div>
           <div
             class="table_cell"
             v-for="(q, index) in question"
@@ -232,7 +232,10 @@ export default {
   flex-flow: column nowrap
   border: 1px solid grey
   padding: 3px
-  max-width: 350px
+  max-width: 300px
+
+.small
+  max-width: 150px
 
 .noborder
   border: 0!important
