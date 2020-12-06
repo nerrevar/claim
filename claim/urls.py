@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'), # index
+    path('favicon.ico', views.favicon, name='favicon'),
     path('get_stat', views.stat, name='stat'), # Main statistic
     path('stat_kv', views.stat_kv, name='stat_kv'), # Statistic on kv
     path('stat_question', views.stat_question, name='stat_question'), # Statistic on questions

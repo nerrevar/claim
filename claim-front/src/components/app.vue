@@ -123,17 +123,46 @@ export default {
     ...mapGetters(['getCurrentPage', 'getUser']),
     getCurrentPageLocal: function () {
       switch (this.getCurrentPage.code){
-        case 'start':
-        case 'stat': return 'Statistic'
-        case 'stat_kv': return 'StatisticKv'
-        case 'stat_question': return 'StatisticQuestion'
-        case 'claim_number': return 'ClaimNumber'
-        case 'add_error': return 'AddError'
-        case 'add_error_multiple': return 'AddErrorMultiple'
-        case 'user_add': return 'UserAdd'
-        case 'user_check': return 'UserCheck'
-        case 'user_settings': return 'UserSettings'
-        default: return 'Statistic'
+        case 'stat': {
+          document.title = "Статистика"
+          return 'Statistic'
+        }
+        case 'stat_kv': {
+          document.title = "Статистика по КВ"
+          return 'StatisticKv'
+        }
+        case 'stat_question': {
+          document.title = "Статистика по вопросам"
+          return 'StatisticQuestion'
+        }
+        case 'claim_number': {
+          document.title = "Анкеты с ошибками"
+          return 'ClaimNumber'
+        }
+        case 'add_error': {
+          document.title = "Добавить ошибку"
+          return 'AddError'
+        }
+        case 'add_error_multiple': {
+          document.title = "Добавить ошибки списком"
+          return 'AddErrorMultiple'
+        }
+        case 'user_add': {
+          document.title = "Добавить пользователя"
+          return 'UserAdd'
+        }
+        case 'user_check': {
+          document.title = "Сверка пользователей"
+          return 'UserCheck'
+        }
+        case 'user_settings': {
+          document.title = "Пользовательские настройки"
+          return 'UserSettings'
+        }
+        default: {
+          document.title = "Статистика"
+          return 'Statistic'
+        } 
       }
     }
   },

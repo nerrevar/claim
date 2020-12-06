@@ -43,6 +43,10 @@ def index(request):
     template = loader.get_template('claim/index.html')
     return HttpResponse(template.render({}, request))
 
+# Favicon
+def favicon(request):
+    return HttpResponse(open("static/img/favicon.jpg", "rb").read(), content_type="image/jpeg")
+
 # Main statistics
 def stat(request):
     try:
