@@ -1,6 +1,11 @@
 <template>
   <div class="wrapper_2">
-    <div class="total"><b>Всего ошибок: {{ totalCount() }}</b></div>
+    <div
+      class="total bold"
+      v-if="checkPrivacy"
+    >
+      Всего ошибок: {{ totalCount() }}
+    </div>
     <div class="wrapper">
       <div class="table">
         <div class="table_row bold head">
@@ -188,6 +193,13 @@ export default {
         privacy: 0,
         login: e.target.innerText.trim()
       })
+    },
+    checkPrivacy () {
+      switch (this.getUser.role) {
+        case 'pret_work':
+        case 'pret_view':return true
+        default: return false
+      }
     },
   },
   mounted () { this.fetchClaims() },
