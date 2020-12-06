@@ -43,14 +43,18 @@ def index(request):
     template = loader.get_template('claim/index.html')
     return HttpResponse(template.render({}, request))
 
+# Favicon
+def favicon(request):
+    return HttpResponse(open("static/img/favicon.jpg", "rb").read(), content_type="image/jpeg")
+
 # Main statistics
 def stat(request):
-    # try:
-    start_date = date.fromisoformat( request.GET.get('start_date', get_start_month()) )
-    end_date = date.fromisoformat( request.GET.get('end_date', get_end_month()) )
-    # except:
-    #     start_date = get_start_month()
-    #     end_date = get_end_month()
+    try:
+        start_date = date.fromisoformat( request.GET.get('start_date', get_start_month()) )
+        end_date = date.fromisoformat( request.GET.get('end_date', get_end_month()) )
+    except:
+        start_date = get_start_month()
+        end_date = get_end_month()
 
     response = {
         'question': [
@@ -248,22 +252,30 @@ def write_error_multiple(request):
     else:
         err_date = date.today()
     claim_arr = data.get('error_list')
-    for claim in claim_arr:
-        try:
-            Claim.objects.get(
-                kv=KV.objects.get(login=claim.get('login')),
-                question=Question.objects.get(text=claim.get('question_text')),
-                form_id=claim.get('form_id')
-            )
-        except:
-            tmp_claim = Claim(
-                kv=KV.objects.get(login=claim.get('login')),
-                question=Question.objects.get(text=claim.get('question_text')),
-                error_date=err_date,
-                form_id=claim.get('form_id')
-            )
-            tmp_claim.save()
-    return HttpResponse(True)
+    try:
+        for claim in claim_arr:
+            error = 'Ошибка в кв: ' + claim.get('login')
+            test_kv = KV.objects.get(login=claim.get('login'))
+            error = 'Ошибка в вопросе: ' + claim.get('question_text')
+            test_question = Question.objects.get(text=claim.get('question_text'))
+            error = 'Неизвестная ошибка'
+            try:
+                Claim.objects.get(
+                    kv=KV.objects.get(login=claim.get('login')),
+                    question=Question.objects.get(text=claim.get('question_text')),
+                    form_id=claim.get('form_id')
+                )
+            except:
+                tmp_claim = Claim(
+                    kv=KV.objects.get(login=claim.get('login')),
+                    question=Question.objects.get(text=claim.get('question_text')),
+                    error_date=err_date,
+                    form_id=claim.get('form_id')
+                )
+                tmp_claim.save()
+        return JsonResponse({'status': 'True', 'error': 'False'})
+    except:
+        return JsonResponse({'status': 'False', 'error': error})
 
 # Add user
 @csrf_exempt

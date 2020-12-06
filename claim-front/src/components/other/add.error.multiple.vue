@@ -7,7 +7,22 @@
     <div>
       <button @click="addError($event)">Добавить</button>
       <div
-        class="response_status"
+        class="requestStatus"
+        v-if="pending || error"
+      >
+        <span
+          v-if="pending"
+        >
+          Запрос выполняется...
+        </span>
+        <span
+          v-if="error !== false"
+        >
+          {{ error }}
+        </span>
+      </div>
+      <div
+        class="responseStatus"
         v-if="response !== ''"
       >
         <span
@@ -32,12 +47,15 @@ export default {
   name: 'AddErrorMultiple',
   data() {
     return {
-      response: ''
+      response: '',
+      pending: false,
+      error: false,
     }
   },
   methods: {
     addError(e) {
       e.preventDefault()
+      this.pending = true
       let data = {
         error_list: document.getElementById('error_list').value.split('\n').map(
           el => {
@@ -51,7 +69,6 @@ export default {
         ),
         prev: document.getElementById('prev').checked,
       }
-      console.log(data)
       fetch(
         'write_error_multiple',
         {
@@ -64,16 +81,20 @@ export default {
           credentials: 'include',
         }
       ).then(
-        response => response.text()
+        response => response.json()
       ).then(
         response => {
-          this.response = response
+          if (response.error !== 'False')
+            this.error = response.error
+          this.response = response.status
           setTimeout(() => {
               this.response = ''
             },
             10000
           )
         }
+      ).then(
+        () => this.pending = false
       )
     }
   },
